@@ -21,7 +21,7 @@ app.use((ctx,next) => {
     next();
 });
 app.use((ctx,next) => {
-    ctx.response.set('Access-Control-Allow-Origin','*');
+    // ctx.response.set('Access-Control-Allow-Origin','*');
     if (ctx.request.method==='GET') {
         ctx.response.status =200;
         ctx.response.body = listTask;

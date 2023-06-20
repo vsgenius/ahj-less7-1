@@ -3,8 +3,9 @@ const Koa = require("koa");
 const { koaBody } = require("koa-body");
 
 const listTask = {
-  0: { value: "dsdasas", status: "inwork" },
-  1: { value: "dsfsdf", status: "done" },
+  0: { value: "первое дело", text: "Сделать первое дело", status: "done" },
+  1: { value: "второе дело", text: "Сделать второе дело", status: "inwork" },
+  2: { value: "третье дело", text: "Сделать третье дело", status: "inwork" }
 };
 let id = 1;
 const app = new Koa();
@@ -30,8 +31,13 @@ app.use((ctx, next) => {
 app.use((ctx, next) => {
   ctx.response.set("Access-Control-Allow-Origin", "*");
   if (ctx.request.method === "GET") {
-    ctx.response.status = 200;
-    ctx.response.body = listTask;
+    if (ctx.request.query.id) {
+      ctx.response.status = 200;
+      ctx.response.body = listTask[ctx.request.query.id];
+    } else {
+      ctx.response.status = 200;
+      ctx.response.body = listTask;
+    }
   } else if (ctx.request.method === "POST") {
     listTask[++id] = { value: ctx.request.body.value, status: "inwork" };
     ctx.response.status = 200;
@@ -40,10 +46,15 @@ app.use((ctx, next) => {
     delete listTask[ctx.request.query.id];
     ctx.response.status = 200;
   } else if (ctx.request.method === "PATCH") {
-    if (listTask[ctx.request.query.id]["status"] !== "done") {
-      listTask[ctx.request.query.id]["status"] = "done";
+    if (!ctx.request.body) {
+      if (listTask[ctx.request.query.id]["status"] !== "done") {
+        listTask[ctx.request.query.id]["status"] = "done";
+      } else {
+        listTask[ctx.request.query.id]["status"] = "inwork";
+      }
     } else {
-      listTask[ctx.request.query.id]["status"] = "inwork";
+      listTask[ctx.request.query.id]["value"] = ctx.request.body.value;
+      listTask[ctx.request.query.id]["text"] = ctx.request.body.text;
     }
     ctx.response.status = 200;
   }
